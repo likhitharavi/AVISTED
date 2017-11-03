@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "AVISTED-Visualize";
+}
+@{
+    string[] Parameters = ViewBag.Parameters.Split(',');
+    string[] Parameterscheck = ViewBag.Parameter.Split(',');
+    string selectedParam = ViewBag.Parameter;
+    string selectedYear = ViewBag.Year;
+    string selectedMonth = ViewBag.Month;
+    string[] selectedMonthsindex = selectedMonth.Split(',');
+    string[] months = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+    bool multi = false;
+    if(Parameterscheck.Count()>1)
+    {
+        multi = true;
+    }
+    string visType = ViewBag.Type;
+}
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<body onload="IndexLoad();">
+    <div>
+        <form method="post">
+            <input type="hidden" id="compare" name="compare" value="@ViewBag.Compare">
+            <div><h5>Select the below options: </h5></div>
+            <div>
+                <div style="float:left;width: 200px;"><p>  &#160;&#160;&#160;Parameter:</p></div>
+                <div style="float:left;width: 200px;"><p>  &#160;&#160;&#160;Year:</p></div>
+                <div style="float:left;width: 200px;"><p>  &#160;&#160;&#160;Month:</p></div>
+                <div style="float:left;width: 200px;"><p>  &#160;&#160;&#160;Visualization Type:</p></div>
+            </div>
+            <div>
+                <div style="float:left;width: 200px;">
+                    <select id="parameter" name="parameter" multiple="multiple" value="@selectedParam">
+                        @foreach (string s in Parameters)
+                        {
+                            if (selectedParam.Contains(s))
+                            {
+                                <option type="checkbox" value="@s" selected>@s</option>
+                            }
+                            else
+                            {
+                                <option type="checkbox" value="@s">@s</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div style="float:left;width: 200px;">
+                    <select id="year" name="year" multiple="multiple">
+
+                        @{ int StartYear = Convert.ToInt32(ViewBag.StartDate);
+                            int EndYear = Convert.ToInt32(ViewBag.EndDate);
+                            for (int i = StartYear; i <= EndYear; i++)
+                            {
+                                if (selectedYear != "" && selectedYear.Contains(i.ToString()))
+                                {
+
+                                    <option type="checkbox" value="@i" selected>@i</option>
+
+                                }
+                                else
+                                {
+                                    <option type="checkbox" value="@i">@i</option>
+
+                                }
+                            }
+
+                        }
+
+                    </select>
+                </div>
+
+                <div style="float:left;width:200px;">
+                    <select id="month" name="month" multiple="multiple">
+                        @for (int i = 1; i < 13; i++)
+                        {
+                            bool found = false;
+                            foreach(string s in selectedMonthsindex)
+                            {
+                                if (s.Equals(i.ToString()))
+                                {
+                                    found = true;
+
+                                }
+
+                            }
+                            @if (found)
+                            {
+                                <option value="@i" selected>@months[i-1]</option>
+                            }
+                            else
+                            {
+                                <option value="@i">@months[i-1]</option>
+
+                            }
+
+                        }
+
+                    </select>
+                </div>
+                <div style="float:left;width:200px;">
+                    <select id="Type" name="type">
+                        @{ string vistypes = ViewBag.visTypes;
+                            string[] vistypesArray = vistypes.Split(',');
+                            string type = ViewBag.Type;
+                            foreach (string s in vistypesArray)
+                            {
+                                if (string.Compare(s, type) == 0)
+                                {
+                                    <option value="@s" selected>@s</option>
+
+                                }
+                                else
+                                {
+                                    <option value="@s">@s</option>
+
+                                }
+
+
+
+                            }
+                        }
+                    </select>
+                </div>
+
+            </div>
+            <script type="text/javascript">
+                $(function () {
+                    // initialize sol
+                    $('#parameter').searchableOptionList({ showSelectionBelowList: true });
+                    $('#year').searchableOptionList({ showSelectionBelowList: true });
+                    $('#month').searchableOptionList({ showSelectionBelowList: true });
+                    $('#Type').searchableOptionList({ showSelectionBelowList: true });
+                });
+            </script>
+            <div style=""><br /> <br /> &#160;&#160;&#160; &#160;&#160;&#160;<input type="submit" class="btn btn-info" value="View" name="decision"></div>
+            <div style=""><br /> <br /> &#160;&#160;&#160; &#160;&#160;&#160;<input type="submit" class="btn btn-info" value="Save image" name="SaveImage" onclick="saveImg();"></div>
+            <!--div style=""><br /> <br /> &#160;&#160;&#160; &#160;&#160;&#160;<input type="submit" class="btn btn-info" value="DownloadFromSVG" name="DownloadFromSVG" onclick="DownloadFromSVG();"></!--div-->
+            <section id="chart"></section>
+            <input type="hidden" id="ImgFile" name="ImgFile" value="@ViewBag.ImgSrc" />
+        </form>
+
+        
+    </div>
+</body>

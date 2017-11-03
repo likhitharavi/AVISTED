@@ -1,0 +1,403 @@
+﻿@model AVISTED.Models.DatasetInfo
+@{
+
+    ViewBag.Title = "Extract";
+}
+<script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDLswLldhCwf0DbzBZK2i0bWYxjxoUd-eA&callback=initMap"  > </script>  
+@Html.ValidationSummary() 
+  
+<form asp-controller="ModelOutput" asp-action="Extract" method="post" class="form-group">
+    <div class="content-wrapper">
+
+        <h1>Please follow the below steps to visualize  the data.</h1>
+        <ol class="round">
+
+            <li class="one">
+                <h2><span asp-validation-for="parameterField" class="text-danger">*</span> Select the parameters </h2>
+                <div class="styled-select">
+                    <p class="one" style="width:870px;">
+                        &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                        @foreach (var parameter in Model.parameters)
+                        {
+                            if ((string.Compare(parameter.display, "checkbox") == 0))
+                            {
+                                if (Model.isPostback)
+                                {
+                                    bool check = Model.parameterField.Contains(parameter.name);
+                                    <input type="checkbox" name="parameter" value="@parameter.name" @(check ? " checked=\"checked\"" : "") /><span> @parameter.name&#160;&#160;&#160;</span>
+
+                                }
+                                else
+                                {
+                                    <input type="checkbox" name="parameter" value="@parameter.name" /><span> @parameter.name&#160;&#160;&#160;</span>
+                                }
+
+                            }
+                        }
+                    </p>
+                </div>
+            </li>
+            @foreach (var parameter in Model.parameters)
+            {
+                if ((string.Compare(parameter.type, "DateTime") == 0)) {
+            <li class="two">
+                <h2>Select the time period</h2>
+                <p>@ViewBag.Start</p>
+                <p class="one" style="width:520px;">
+                    &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                    <span> <span asp-validation-for="startDateField" class="text-danger">*</span>Select start date&#160; </span>
+                    @if (Model.isPostback)
+                    {
+                    <input type="datetime" id="start" name="startDate" value="@Model.startDateField" min="@parameter.min" max="@parameter.max" /> <br />
+                    }
+                    else
+                    {<input type="datetime" id="start" name="startDate" value="@parameter.min" min="@parameter.min" max="@parameter.max" /> <br />}
+
+                    &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                    <span> <span asp-validation-for="endDateField" class="text-danger">*</span> Select end date&#160;&#160;  </span>
+                    @if (Model.isPostback)
+                    { 
+                        <input type="datetime" id="end" name="endDate" value="@Model.endDateField" min="@parameter.min" max="@parameter.max" />
+                    }
+                    else
+                    {
+                    <input type="datetime" id="end" name="endDate" value="@parameter.max" min="@parameter.min" max="@parameter.max"/>
+                    }
+                </p>
+            </li>
+                }
+            }
+
+
+            <li class="three">
+
+                <h2>Select the latitude and longitude </h2>
+                <p style="color:gray"><i> [Note: Select a point from the highlighted region] </i></p>
+                <div id="map" style="width:70%;height:300px"></div>
+                <input type="hidden" id="datasetid" name="datasetid" value="@ViewBag.datasetid">
+                <script>
+
+                      // When the user clicks on the polygon an info window opens, showing
+                      // information about the latitude and longitude.
+
+                      var map;
+                      var infoWindow;
+
+                      function initMap() {
+                          var id = $('#datasetid').val();
+                          console.log("id:"+id);
+                          //switch()
+                          switch(id){
+                              case '1' :  
+                                  map = new google.maps.Map(document.getElementById('map'), {
+                                      zoom: 3,
+                                      center: {lat: 33.117, lng: -112.984},
+                                      mapTypeId: 'terrain'
+                                  });
+                                  console.log("In switch 1");
+                                  // Define the LatLng coordinates for the polygon.
+                                  var triangleCoords = [
+                                      {lat: 9.211, lng: -133.966},
+                                      {lat: 9.211, lng: -92.002},
+                                      {lat: 51.414, lng: -78.505},
+                                      {lat:51.414, lng:-147.462}
+                                  ];
+
+                                  // Construct the polygon.
+                                  var bermudaTriangle = new google.maps.Polygon({
+                                      paths: triangleCoords,
+                                      strokeColor: '#FF0000',
+                                      strokeOpacity: 0.8,
+                                      strokeWeight: 3,
+                                      fillColor: '#FF0000',
+                                      fillOpacity: 0.35
+                                  });
+                                  bermudaTriangle.setMap(map);
+
+                                  // Add a listener for the click event.
+                                  bermudaTriangle.addListener('click', showArrays1);
+                                  infoWindow = new google.maps.InfoWindow;
+                                  break;
+                              case '2':
+                                  console.log("In switch 2");
+                                  var latcen = 33.117;
+                                  var lngcen = -112.984;
+                                  map = new google.maps.Map(document.getElementById('map'), {
+                                      zoom: 3,
+                                      // center: {lat:-59.95, lng: -179.95},
+                                      center: {lat:latcen , lng: lngcen},
+                                      mapTypeId: 'terrain'
+                                  });
+                                  var bounds = {
+                                      north: 59.95,
+                                      south: -59.95,
+                                      east: 179.95,
+                                      west: -179.95
+                                  };
+
+                                  // Define a rectangle and set its editable property to true.
+                                  var rectangle = new google.maps.Rectangle({
+                                      bounds: bounds,
+                            
+                                  });
+
+                                  rectangle.addListener('click', showArrays);
+                                  rectangle.setMap(map);
+                                  infoWindow = new google.maps.InfoWindow;
+                                  break;
+                              case '3':
+                                  map = new google.maps.Map(document.getElementById('map'), {
+                                      zoom: 3,
+                                      center: {lat: 33.117, lng: -112.984},
+                                      mapTypeId: 'terrain'
+                                  });
+                                  console.log("In switch 3");
+                                  // Define the LatLng coordinates for the polygon.
+                                  var triangleCoords = [
+                                       {lat: 59.95, lng: -179.95},
+                                       {lat: 59.95, lng: 0},
+                                       {lat: -59.95, lng: 0},
+                                       {lat:-59.95, lng:-179.95}
+                                  ];
+                                  // Construct the polygon.
+                                  var bermudaTriangle = new google.maps.Polygon({
+                                      paths: triangleCoords,
+                                      strokeColor: '#FF0000',
+                                      strokeOpacity: 0.8,
+                                      strokeWeight: 3,
+                                      fillColor: '#FF0000',
+                                      fillOpacity: 0.35
+                                  });
+                                  bermudaTriangle.setMap(map);
+
+                                  // Add a listener for the click event.
+                                  bermudaTriangle.addListener('click', showArrays1);
+                                  infoWindow = new google.maps.InfoWindow;
+                                  break;
+                              case '4':
+                                  map = new google.maps.Map(document.getElementById('map'), {
+                                      zoom: 3,
+                                      center: {lat: 0, lng: -180},
+                                      mapTypeId: 'terrain'
+                                  });
+                                  console.log("In switch 4");
+                                  // Define the LatLng coordinates for the polygon.
+                                  var triangleCoords = [
+                                       {lat: 37.772, lng: -122.214},
+                                        {lat: 21.291, lng: -157.821},
+                                        {lat: -18.142, lng: 178.431},
+                                        {lat: -27.467, lng: 153.027}
+                                       
+                                      
+                                  ];
+                                  // Construct the polygon.
+                                  var bermudaTriangle = new google.maps.Polygon({
+                                      paths: triangleCoords,
+                                      strokeColor: '#FF0000',
+                                      strokeOpacity: 0.8,
+                                      strokeWeight: 3,
+                                      fillColor: '#FF0000',
+                                      fillOpacity: 0.35
+                                  });
+                                  bermudaTriangle.setMap(map);
+
+                                  // Add a listener for the click event.
+                                  bermudaTriangle.addListener('click', showArrays1);
+                                  infoWindow = new google.maps.InfoWindow;
+                                  break;
+                                                           
+                          }
+                                               // Define the LatLng coordinates for the polygon.
+                       /* var triangleCoords = [
+                            {lat: 59.95, lng: -179.95},
+                            {lat: 59.95, lng: 0},
+                            {lat: 59.95, lng: 179.95},
+                              {lat: -59.95, lng: -179.95},
+                                {lat: -59.95, lng:0},
+                            {lat:-59.95, lng:179.95}
+                        ];*/
+                          /*  var triangleCoords = [
+                            {lat: 59.95, lng: -179.95},
+                            {lat: 59.95, lng: 0},
+                            {lat: -59.95, lng: 0},
+                            {lat:-59.95, lng:-179.95}
+                        ];*/
+
+                       /* var triangleCoords = [
+                            {lat: -59.95, lng:0},
+                            {lat: 59.95, lng: 0},
+                            {lat: 59.95, lng: 179.95},
+                            {lat:-59.95, lng:179.95},
+                            {lat: -59.95, lng:-179.95},
+                            {lat: 59.95, lng: -179.95},
+                            {lat: 59.95, lng:0},
+                            {lat:-59.95, lng:0}
+
+                        ]
+
+                        // Construct the polygon.
+                        var bermudaTriangle = new google.maps.Polygon({
+                          paths: triangleCoords,
+                          strokeColor: '#FF0000',
+                          strokeOpacity: 0.8,
+                          strokeWeight: 3,
+                          fillColor: '#FF0000',
+                          fillOpacity: 0.35
+                        });
+                        bermudaTriangle.setMap(map);*/
+                       
+                        // Add a listener for the click event.
+                      //  bermudaTriangle.addListener('click', showArrays);
+
+                       
+                      }
+
+                      /** @this {google.maps.Rectangle} */
+                      function showArrays(event) {
+                        // Since this polygon has only one path, we can call getPath() to return the
+                        // MVCArray of LatLngs.
+                        //var vertices = this.getPath();
+
+                        var contentString = 'Clicked location: <br>' + event.latLng.lat() + ',' + event.latLng.lng() +
+                            '<br>';
+
+                        /*Iterate over the vertices.
+                        for (var i =0; i < vertices.getLength(); i++) {
+                          var xy = vertices.getAt(i);
+                          contentString += '<br>' + 'Coordinate ' + i + ':<br>' + xy.lat() + ',' +
+                              xy.lng();
+                        }*/
+                          //set the values to html variables
+                        var x = document.getElementById("latitude");
+                        var y = document.getElementById("longitude");
+                        x.value = event.latLng.lat();
+
+                        y.value = event.latLng.lng();
+                        // Replace the info window's content and position.
+                        infoWindow.setContent(contentString);
+                        infoWindow.setPosition(event.latLng);
+
+                        infoWindow.open(map);
+                      }
+                      /** @this {google.maps.Polygon} */
+                      function showArrays1(event) {
+                          // Since this polygon has only one path, we can call getPath() to return the
+                          // MVCArray of LatLngs.
+                          var vertices = this.getPath();
+
+                          var contentString = 'Clicked location: <br>' + event.latLng.lat() + ',' + event.latLng.lng() +
+                              '<br>';
+
+                          /*Iterate over the vertices.
+                          for (var i =0; i < vertices.getLength(); i++) {
+                            var xy = vertices.getAt(i);
+                            contentString += '<br>' + 'Coordinate ' + i + ':<br>' + xy.lat() + ',' +
+                                xy.lng();
+                          }*/
+                          //set the values to html variables
+                          var x = document.getElementById("latitude");
+                          var y = document.getElementById("longitude");
+                          x.value = event.latLng.lat();
+
+                          y.value = event.latLng.lng();
+                          // Replace the info window's content and position.
+                          infoWindow.setContent(contentString);
+                          infoWindow.setPosition(event.latLng);
+
+                          infoWindow.open(map);
+                      }
+                </script>
+                <div id="Dimensions">
+                    <p class="one">
+                        &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                        <span>
+                            <span asp-validation-for="latminField" class="text-danger">*</span>
+                            <span>Latitude  min: </span><input type="text" id="latitude" name="latmin" style="width:100px;" value=""><!--<input type="text" name="latmindeg" style="width:50px;" value=""><input type="text" name="latminSec" style="width:50px;" value="">-->
+                        </span>
+                        &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                    <!--   <span>
+                            <span asp-validation-for="latmaxField" class="text-danger">*</span>
+                            <span>Latitude  max:</span> <input type="text" name="latmax" style="width:50px;" value=""><!--<input type="text" name="latmaxdeg" style="width:50px;" value=""><input type="text" name="latmaxSec" style="width:50px;" value="">
+                        </span>--> 
+                    </p>
+
+                    <p class="one">
+                        &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                        <span>
+                            <span asp-validation-for="lonminField" class="text-danger">*</span>
+                            <span>Longitude min: </span><input type="text" id="longitude" name="lonmin" style="width:100px;" value=""><!--<input type="text" name="lonmindeg" style="width:50px;" value=""><input type="text" name="lonminSec" style="width:50px;" value="">-->
+                        </span>
+                        &#160;&#160;&#160;&#160;&#160;&#160;
+                      <!--  <span>
+                            <span asp-validation-for="lonmaxField" class="text-danger">*</span>
+                            <span>Longitude max: </span> <input type="text" name="lonmax" style="width:50px;" value=""><!--<input type="text" name="lonmaxdeg" style="width:50px;" value=""><input type="text" name="lonmaxSec" style="width:50px;" value="">
+                        </span>-->
+                    </p>
+
+                </div>
+            </li>
+            <li class="four">
+                <h2><span asp-validation-for="statField" class="text-danger">*</span>Select the required statistics </h2>
+                <div class="styled-select">
+                    <p class="one" style="width:870px;">
+                        &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                        @if (Model.isPostback)
+                        {
+                          
+                        <input type="radio" name="stat" value="max" @(Model.statField.Contains("max") ? " checked=\"checked\"" : "") /><span> Maximum&#160;&#160;&#160;</span>
+                        <input type="radio" name="stat" value="min" @(Model.statField.Contains("min") ? " checked=\"checked\"" : "")  /><span> Minimum&#160;&#160;&#160;</span>
+                        <input type="radio" name="stat" value="mean" @(Model.statField.Contains("mean") ? " checked=\"checked\"" : "")  /><span> Mean&#160;&#160;&#160;</span>
+                        <input type="radio" name="stat" value="var" @(Model.statField.Contains("var") ? " checked=\"checked\"" : "")  /><span> Variance&#160;&#160;&#160;</span>
+                        <input type="radio" name="stat" value="stD" @(Model.statField.Contains("stD") ? " checked=\"checked\"" : "")  /><span> Standard Deviation&#160;&#160;&#160;</span> }
+                        else
+                        {
+                            <input type="radio" name="stat" value="max"  /><span> Maximum&#160;&#160;&#160;</span>
+                            <input type="radio" name="stat" value="min"  /><span> Minimum&#160;&#160;&#160;</span>
+                            <input type="radio" name="stat" value="mean"  /><span> Mean&#160;&#160;&#160;</span>
+                            <input type="radio" name="stat" value="var"  /><span> Variance&#160;&#160;&#160;</span>
+                            <input type="radio" name="stat" value="stD" /><span> Standard Deviation&#160;&#160;&#160;</span>
+                        }
+                        
+                    </p>
+                </div>
+            </li>
+            <li class="five">
+                <h2> Select an output format</h2>
+                <div class="styled-select" style="width:350px;">
+                    <p class="one">
+                        &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                         @if (Model.isPostback)
+                         {
+                        <input type="radio" name="outFormat" value="CSV" @(Model.statField.Contains("CSV") ? " checked=\"checked\"" : "") ><span> CSV &#160;&#160;&#160;</span>
+                        <input type="radio" name="outFormat" value="NetCDF" @(Model.statField.Contains("NetCDF") ? " checked=\"checked\"" : "")  ><span> NetCDF &#160;&#160;&#160;</span>
+                        <input type="radio" name="outFormat" value="ASCII" @(Model.statField.Contains("ASCII") ? " checked=\"checked\"" : "")  ><span> ASCII &#160;&#160;&#160;</span>
+                        <input type="radio" name="outFormat" value="HDF5" @(Model.statField.Contains("HDF5") ? " checked=\"checked\"" : "")  ><span> HDF5 &#160;&#160;&#160;</span>
+                         }
+                         else
+                         {
+                            <input type="radio" name="outFormat" value="CSV" checked><span> CSV &#160;&#160;&#160;</span>
+                            <input type="radio" name="outFormat" value="NetCDF"  ><span> NetCDF &#160;&#160;&#160;</span>
+                            <input type="radio" name="outFormat" value="ASCII"  ><span> ASCII &#160;&#160;&#160;</span>
+                            <input type="radio" name="outFormat" value="HDF5"  ><span> HDF5 &#160;&#160;&#160;</span>
+                         }
+                    </p>
+                    
+                    <p><span><input type="checkbox" id="save" name="save" value="@Model.saveDownload" /> Save file on the server</span></p>
+                    
+                    
+                </div>
+            </li>
+        </ol>
+
+        <div class="center">
+            <p>
+                &#160;&#160;
+                <input type="submit" value="View" name="decision" class="btn btn-info">
+                <input type="submit" value="Visualize" name="decision" class="btn btn-info">
+                <input type="submit" value="Download" name="decision" class="btn btn-info">
+            </p>
+        </div>
+        <input type="hidden" name="format" value="@Model.format">
+        <input type="hidden" name="path" value="@Model.path">
+    </div>
+</form>

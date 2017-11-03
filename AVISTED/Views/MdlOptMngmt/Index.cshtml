@@ -1,0 +1,159 @@
+﻿@model IEnumerable<AVISTED.Models.Dataset>
+
+@{
+    ViewData["Title"] = "Model Management Output";
+}
+
+<h2>Model Management Output</h2>
+<script src="~/js/Description.js" asp-append-version="true"></script>
+
+<p>
+    <a asp-action="Create">Create New</a>
+
+</p>
+<button id="upload" onclick="openUpload()">Upload</button>
+<!-- The Modal -->
+<div id="modal1" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close" onclick="closeUpload()"></span>
+
+        <form asp-controller="MdlOptMngmt" asp-action="Upload" id="Form1" class="form-group" method="post" enctype="multipart/form-data" runat="server">
+            <INPUT type=file id=File1 name=File1 runat="server" />
+            <br>
+            <input type="submit" id="Submit1" value="Upload" runat="server" />
+        </form>
+
+
+    </div>
+
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UploadDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Format)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Parameters)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Size)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Author)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UploadDate)
+                </td>
+                <td>
+                    <!-- Trigger/Open The Modal -->
+                    <button id="@item.ID+mybtn" onclick="openDialog(@item.ID,'0')">Description</button>
+
+                    <!-- The Modal -->
+                    <div id="@item.ID+myModal" class="modal">
+
+                        <!-- Modal content -->
+                        <div class="modal-content">
+                            <span class="close" onclick="closeDialog(@item.ID,'0')">x</span>
+                            <p>@item.Description</p>
+                        </div>
+
+                    </div>
+
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Format)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+
+                    <!-- Trigger/Open The Modal -->
+                    <button id="@item.ID+mybtnparam" onclick="openDialog(@item.ID,'1')">Parameters</button>
+
+                    <!-- The Modal -->
+                    <div id="@item.ID+myModalparam" class="modal">
+
+                        <!-- Modal content -->
+                        <div class="modal-content">
+                            <span class="close" onclick="closeDialog(@item.ID,'1')">x</span>
+                            @{
+                                string[] parameters = item.Parameters.Split(',');
+                                foreach (string s in parameters)
+                                {
+                                    <p>@s</p>
+
+                                }
+                            }
+
+                        </div>
+
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Size)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                @{
+                    string email = ViewBag.EmailId;
+                }
+                @if (String.Equals("True", ViewBag.Delete)||item.EmailId.Equals(email))
+                {
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ID">Details</a>
+
+                        <a asp-action="Delete" asp-route-id="@item.ID">|Delete</a>
+
+                        @if (!item.Status.Equals("MODEL-UNDER-VALIDATION"))
+                        { <a asp-action="Select" asp-route-id="@item.ID">|Select</a>}
+
+                    </td>
+                }
+                else if (String.Equals("False", ViewBag.Delete))
+                {
+                    <td>
+
+                        <a asp-action="Details" asp-route-id="@item.ID">Details</a>
+                        @if (!item.Status.Equals("MODEL-UNDER-VALIDATION"))
+                        { <a asp-action="Select" asp-route-id="@item.ID">|Select</a>}
+                    </td>
+                }
+            </tr>
+                                }
+    </tbody>
+</table>

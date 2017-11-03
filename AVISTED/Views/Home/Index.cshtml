@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@section featured {
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+
+                <h2><strong>AVISTED</strong> helps the climate researchers in identifying the trends, patterns and outliers quickly. The main goal of AVISTED is to help the climate researchers in visualizing the datasets of their choice over the web.</h2>
+            </hgroup>
+
+        </div>
+    </section>
+}
+<div class="container-fluid" style="margin-left:10%;">
+
+    <div class="row" style="float :left;">
+        <div class=".col-md-4" style="padding-bottom: 10px;"><a asp-controller="Account" asp-action="Login" class="btn btn-info">User Login</a></div>
+        <div class=".col-md-4" style="padding-bottom: 10px;"><a asp-controller="Account" asp-action="Register" class="btn btn-info">New User</a></div>
+
+        <div class=".col-md-4" style="padding-bottom: 10px;">
+            <a asp-controller="Home" asp-action="AdminUserCollection" class="btn btn-info">Guest Login</a>
+            <text style="color :orangered">[Limited Options]</text>
+        </div>
+
+    </div>
+</div>

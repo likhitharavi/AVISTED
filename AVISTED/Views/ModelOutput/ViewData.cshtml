@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "View Results";
+    string[] Parameter = ViewBag.Results[0].Split(','); 
+}
+
+<hgroup class="title">
+    <h1>@ViewBag.Title</h1>    
+</hgroup>
+<div>
+    <table>
+        <thead>
+          <tr> 
+            @foreach( string s in Parameter){
+             <th>&#160;&#160;&#160;@s</th>
+            }
+          </tr>
+       </thead>
+        @for(int i=1;i< ViewBag.Results.Length; i++)
+        {
+            string[] strings = ViewBag.Results[i].Split(',');
+            <tr>
+                @foreach(string s in strings)
+                {
+                    <td>&#160;&#160;&#160;@s</td>
+                }
+                
+            </tr>
+        }
+    </table>  
+</div>
+
+
