@@ -5,13 +5,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using AVISTED.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace AVISTED.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly SignInManager<ApplicationUser> _signInManager;
+
+        public HomeController(SignInManager<ApplicationUser> signInManager)
+        {
+            _signInManager = signInManager;
+        }
         public IActionResult Index()
         {
+            if (_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("AdminUserCollection", "Home");
+            }
             return View();
         }
         public IActionResult AdminUserCollection()
